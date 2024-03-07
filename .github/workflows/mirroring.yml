@@ -1,0 +1,29 @@
+name: Mirroring
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  SSH_PUB_KEY:
+    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMe8f/ad8r4coU7/yPFCtO18Yu8Cou43BBiaLdtV8GQE dawoox@laptop-antoine
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: $SSH_PUB_KEY
+
+      - name: Push to epitech
+        run: |
+          git fetch --unshallow origin
+          git remote add epitech "${{ secrets.MIRROR_REPO }}"
+          git push epitech --force
